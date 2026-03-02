@@ -1,5 +1,5 @@
 "use client";
-import { LayoutDashboard, Building2, LogOut, CircleUserRound, UsersRound, Users, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, LogOut, CircleUserRound, Users, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,7 +24,7 @@ const NavItem = ({ to, icon: Icon, label, currentPath, onClick }: { to: string; 
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
-    const { role, user } = useAuth();
+    const { user } = useAuth();
     const pathname = usePathname();
     const { setOpenModal } = useLogout();
 
@@ -48,16 +48,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <div className="p-6 border-b border-slate-800 flex gap-3 items-center">
                     <Image src="/logo.png" alt="Rezende" width={48} height={48} />
                     <div className="flex-col text-left">
-                        <h1 className="text-xl font-bold text-white tracking-tight">Grupo Rezende</h1>
-                        <span className="text-xs">Contabilidade</span>
+                        <h1 className="text-xl font-bold text-white tracking-tight">Livro Caixa</h1>
+                        <span className="text-xs">Empresa</span>
                     </div>
                 </div>
 
                 <nav className='flex-1 p-4 space-y-2'>
-                    {role === 'empresa' && <NavItem to="/empresa/dashboard" icon={LayoutDashboard} label="Dashboard" currentPath={pathname}></NavItem>}
-                    {role === 'empresa' && <NavItem to="/empresa/clientes" icon={Users} label="Clientes" currentPath={pathname} onClick={onClose} />}
-                    {(role === 'super_admin' || role === 'admin') && <NavItem to="/admin/empresas" icon={Building2} label="Empresas" currentPath={pathname}></NavItem>}
-                    {role === 'super_admin' && <NavItem to="/admin/usuarios" icon={UsersRound} label="Usuários" currentPath={pathname}></NavItem>}
+                    <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" currentPath={pathname}></NavItem>
+                    <NavItem to="/clientes" icon={Users} label="Clientes" currentPath={pathname} onClick={onClose} />
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">

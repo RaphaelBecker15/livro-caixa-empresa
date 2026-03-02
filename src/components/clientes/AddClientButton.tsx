@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Plus, Save } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "react-toastify";
-import { useClientes } from "@/contexts/empresa/ApiClientesContext";
+import { useClientes } from "@/contexts/ApiClientesContext";
 import Modal from "@/components/Modal";
 
 const estadosBR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO']

@@ -1,5 +1,5 @@
 "use client";
-import { useTransacoes } from "@/contexts/empresa/ApiTransacoesContext";
+import { useTransacoes } from "@/contexts/ApiTransacoesContext";
 import { TrendingUp, TrendingDown, Wallet, type LucideIcon } from "lucide-react";
 
 interface StatCardProps {

@@ -1,7 +1,7 @@
 "use client";
 import { Pencil, Trash2, Paperclip } from "lucide-react";
-import { AttachmentsModal } from "@/components/empresa/AttachmentsModal";
-import { useTransacoes } from "@/contexts/empresa/ApiTransacoesContext";
+import { AttachmentsModal } from "@/components/transacoes/AttachmentsModal";
+import { useTransacoes } from "@/contexts/ApiTransacoesContext";
 import { useState } from "react";
 
 interface TransactionActionButtonsProps {

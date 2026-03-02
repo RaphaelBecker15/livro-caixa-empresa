@@ -1,6 +1,6 @@
 "use client";
 import Modal from "@/components/Modal";
-import { useTransacoes } from "@/contexts/empresa/ApiTransacoesContext";
+import { useTransacoes } from "@/contexts/ApiTransacoesContext";
 import { useState } from "react";
 
 export function ExcluirTransacaoModal({ onExcluir }: { onExcluir?: () => void }) {

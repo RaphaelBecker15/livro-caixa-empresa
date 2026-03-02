@@ -16,12 +16,12 @@ interface LayoutClientWrapperProps {
     user: AuthUser | null
 }
 
-export function LayoutClientWrapper({ children, role, user }: LayoutClientWrapperProps) {
+export function LayoutClientWrapper({ children, user }: LayoutClientWrapperProps) {
 
      const [sidebarOpen, setSidebarOpen] = useState(false)
 
     return (
-        <AuthProvider role={role} user={user}>
+        <AuthProvider user={user}>
             <LogoutProvider>
                 <NavigationLoader />
                 <div className="flex min-h-screen">

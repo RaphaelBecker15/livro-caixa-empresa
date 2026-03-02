@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Plus, Save } from "lucide-react";
 import ModalTransaction from "@/components/ModalTransaction";
 import { createClient } from "@/lib/supabase/client";
-import { useTransacoes } from "@/contexts/empresa/ApiTransacoesContext";
-import { FileUpload } from "@/components/empresa/FileUpload"
+import { useTransacoes } from "@/contexts/ApiTransacoesContext";
+import { FileUpload } from "@/components/transacoes/FileUpload"
 import { toast } from "react-toastify";
 
 interface AddTransactionButtonProps {

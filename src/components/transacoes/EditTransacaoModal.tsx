@@ -1,10 +1,10 @@
 "use client";
 import { Save } from "lucide-react";
 import ModalTransaction from "@/components/ModalTransaction";
-import { useTransacoes } from "@/contexts/empresa/ApiTransacoesContext";
+import { useTransacoes } from "@/contexts/ApiTransacoesContext";
 import { useState } from "react";
 import { Transacao } from "@/lib/types";
-import { FileUpload } from "@/components/empresa/FileUpload";
+import { FileUpload } from "@/components/transacoes/FileUpload";
 import { createClient } from "@/lib/supabase/client";
 import { X, FileText, Image as ImageIcon } from "lucide-react";
 import { toast } from "react-toastify";

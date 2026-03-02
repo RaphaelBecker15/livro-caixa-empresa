@@ -1,6 +1,6 @@
 "use client";
 import { Pencil, Trash2 } from "lucide-react";
-import { useClientes } from "@/contexts/empresa/ApiClientesContext";
+import { useClientes } from "@/contexts/ApiClientesContext";
 import { Client } from "@/lib/types";
 
 export function ClientActionButtons({ cliente }: { cliente: Client }) {

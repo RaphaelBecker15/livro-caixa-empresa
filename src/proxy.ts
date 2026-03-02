@@ -3,9 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const rotasPermitidas: Record<string, string[]> = {
-    '/admin/usuarios': ['super_admin'],
-    '/admin/empresas': ['super_admin', 'admin'],
-    '/empresa/dashboard': ['empresa'],
+    '/dashboard': ['admin'],
+    '/clientes': ['admin'],
 }
 
 export async function proxy(request: NextRequest) {
@@ -49,5 +48,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/empresa/:path*']
+    matcher: ['/:path*']
 }
