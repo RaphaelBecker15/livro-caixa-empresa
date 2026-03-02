@@ -2,7 +2,6 @@ export type AuthUser = {
     id: string
     name: string
     email: string
-    role: 'super_admin' | 'admin' | 'empresa'
 }
 
 export type Usuario = {
@@ -10,16 +9,14 @@ export type Usuario = {
     name: string
     user_name: string
     email: string
-    role: 'super_admin' | 'admin' | 'empresa'
     active: boolean
-    workspaceId: string
-    companyId: string | null
+    createdAt?: string
+    updatedAt?: string
 }
 
 export type Client = {
     id: string
-    companyId: string
-    workspaceId: string
+    userId: string
     document: string
     documentType: 'CPF' | 'CNPJ'
     name: string
@@ -36,27 +33,31 @@ export type Client = {
     createdAt?: string
 }
 
+export type Product = {
+    id: string
+    userId: string
+    name: string
+    description?: string | null
+    price: number
+    deletedAt?: string | null
+    createdAt?: string
+    updatedAt?: string
+}
+
 export type Transacao = {
     id: string
+    userId: string
+    clientId?: string | null
+    client?: Client | null
+    productId?: string | null
+    product?: Product | null
     date: string
     description: string
     amount: number
     type: 'income' | 'expense'
-    companyId: string
-    workspaceId: string
-    userId: string
     attachments: string[]
-    clientId?: string | null
-    client?: Client | null
     deletedAt?: string | null
-}
-
-export type Empresa = {
-    id: string
-    name: string
-    user_name: string
-    email: string
-    cnpj: string
-    active: boolean
-    workspaceId: string
+    deletionReason?: string | null
+    createdAt?: string
+    updatedAt?: string
 }
