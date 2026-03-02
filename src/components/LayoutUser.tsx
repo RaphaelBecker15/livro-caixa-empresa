@@ -6,8 +6,6 @@ export default async function LayoutUser({ children }: { children: ReactNode }) 
   
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  
-  const role = authUser?.app_metadata?.role ?? 'empresa'
 
   const { data: user } = await supabase
     .from('User')
@@ -16,7 +14,7 @@ export default async function LayoutUser({ children }: { children: ReactNode }) 
     .single()
 
   return (
-    <LayoutClientWrapper role={role} user={user}>
+    <LayoutClientWrapper user={user}>
       {children}
     </LayoutClientWrapper>
   )

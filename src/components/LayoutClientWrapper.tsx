@@ -12,7 +12,6 @@ import { Menu } from "lucide-react";
 
 interface LayoutClientWrapperProps {
     children: ReactNode
-    role: string
     user: AuthUser | null
 }
 

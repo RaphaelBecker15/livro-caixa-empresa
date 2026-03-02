@@ -8,13 +8,12 @@ import { FileUpload } from "@/components/transacoes/FileUpload"
 import { toast } from "react-toastify";
 
 interface AddTransactionButtonProps {
-    companyId: string
-    workspaceId: string
     userId: string
     clientes: { id: string, name: string, documentType: string, document: string }[]
+    produtos: { id: string, name: string, price: number }[]
 }
 
-export function AddTransactionButton({ companyId, workspaceId, userId, clientes }: AddTransactionButtonProps) {
+export function AddTransactionButton({ userId, clientes, produtos }: AddTransactionButtonProps) {
     const supabase = createClient()
     const { adicionarTransacao } = useTransacoes()
 
@@ -29,6 +28,7 @@ export function AddTransactionButton({ companyId, workspaceId, userId, clientes 
         amount: '',
         type: 'income',
         clientId: '',
+        productId: '',
     })
 
     const [files, setFiles] = useState<File[]>([])
@@ -36,7 +36,16 @@ export function AddTransactionButton({ companyId, workspaceId, userId, clientes 
     const handleClose = () => {
         setOpenModal(false)
         setFiles([])
-        setForm({ date: dataHoje, description: '', amount: '', type: 'income', clientId: '' })
+        setForm({ date: dataHoje, description: '', amount: '', type: 'income', clientId: '', productId: '' })
+    }
+
+    const handleProductChange = (productId: string) => {
+        const produto = produtos.find(p => p.id === productId)
+        setForm(prev => ({
+            ...prev,
+            productId,
+            amount: produto ? produto.price.toString() : prev.amount
+        }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +58,7 @@ export function AddTransactionButton({ companyId, workspaceId, userId, clientes 
             for (const file of files) {
                 const ext = file.name.split('.').pop()
                 const nomeBase = file.name.replace(`.${ext}`, '').replace(/[^a-zA-Z0-9._-]/g, '_')
-                const path = `${companyId}/${nomeBase}_${Date.now()}.${ext}`
+                const path = `${userId}/${nomeBase}_${Date.now()}.${ext}`
                 
                 const { error: uploadError } = await supabase.storage
                     .from('attachments')
@@ -66,11 +75,10 @@ export function AddTransactionButton({ companyId, workspaceId, userId, clientes 
                     description: form.description,
                     amount: parseFloat(form.amount),
                     type: form.type,
-                    companyId,
-                    workspaceId,
                     userId,
                     attachments: attachmentPaths,
                     clientId: form.clientId || null,
+                    productId: form.productId || null,
                 })
                 .select()
                 .single()
@@ -80,7 +88,7 @@ export function AddTransactionButton({ companyId, workspaceId, userId, clientes 
             adicionarTransacao(transacao)
             toast.success('Transação criada com sucesso!')
             setOpenModal(false)
-            setForm({ date: dataHoje, description: '', amount: '', type: 'income', clientId: '' })
+            setForm({ date: dataHoje, description: '', amount: '', type: 'income', clientId: '', productId: '' })
         } catch {
             if (attachmentPaths.length > 0) {
                 await supabase.storage.from('attachments').remove(attachmentPaths)
@@ -131,6 +139,23 @@ export function AddTransactionButton({ companyId, workspaceId, userId, clientes 
                             {clientes.map(c => (
                                 <option key={c.id} value={c.id}>
                                     {c.name} ({c.documentType})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1">
+                            Produto <span className="text-slate-400 font-normal">(opcional)</span>
+                        </label>
+                        <select
+                            value={form.productId}
+                            onChange={e => handleProductChange(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white"
+                        >
+                            <option value="">Selecione um produto...</option>
+                            {produtos.map(p => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name} — R$ {Number(p.price).toFixed(2).replace('.', ',')}
                                 </option>
                             ))}
                         </select>

@@ -1,6 +1,5 @@
 "use client";
-import { LayoutDashboard, LogOut, CircleUserRound, Users, type LucideIcon } from "lucide-react";
-import Image from "next/image";
+import { LayoutDashboard, LogOut, CircleUserRound, Users, Package, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLogout } from "@/contexts/LogoutContext";
@@ -46,16 +45,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 md:translate-x-0
             `}>
                 <div className="p-6 border-b border-slate-800 flex gap-3 items-center">
-                    <Image src="/logo.png" alt="Rezende" width={48} height={48} />
                     <div className="flex-col text-left">
                         <h1 className="text-xl font-bold text-white tracking-tight">Livro Caixa</h1>
-                        <span className="text-xs">Empresa</span>
                     </div>
                 </div>
 
                 <nav className='flex-1 p-4 space-y-2'>
-                    <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" currentPath={pathname}></NavItem>
-                    <NavItem to="/clientes" icon={Users} label="Clientes" currentPath={pathname} onClick={onClose} />
+                    <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" currentPath={pathname}/>
+                    <NavItem to="/clientes" icon={Users} label="Clientes" currentPath={pathname}/>
+                    <NavItem to="/produtos" icon={Package} label="Produtos" currentPath={pathname}/>
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">

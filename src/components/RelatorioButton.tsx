@@ -15,7 +15,7 @@ interface RelatorioButtonProps {
     transacoes: Transacao[]
     transacoesFiltradas: Transacao[]
     mesSelecionado: string
-    nomeEmpresa: string
+    nomeUsuario: string
 }
 
 const formatCurrency = (value: number) =>
@@ -30,7 +30,7 @@ const getMesAno = (mes: string) => {
     return `${meses[parseInt(month) - 1]} de ${ano}`
 }
 
-export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionado, nomeEmpresa }: RelatorioButtonProps) {
+export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionado, nomeUsuario }: RelatorioButtonProps) {
 
     const [aberto, setAberto] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
@@ -70,14 +70,14 @@ export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionad
         doc.text('Livro Caixa', 14, 18)
         doc.setFontSize(10)
         doc.setFont('helvetica', 'normal')
-        doc.text(nomeEmpresa, 14, 28)
+        doc.text(nomeUsuario, 14, 28)
         doc.text(`Período: ${periodo}`, 14, 35)
         doc.setFontSize(8)
         doc.setTextColor(148, 163, 184)
         doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth - 14, 35, { align: 'right' })
 
         // Logo
-        const logoImg = new Image()
+        {/*const logoImg = new Image()
         logoImg.src = '/logo-grupo-rezende.png'
         await new Promise(resolve => { logoImg.onload = resolve })
 
@@ -87,7 +87,7 @@ export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionad
         const logoH = maxH
         const logoW = Math.min(logoH * ratio, maxW)
 
-        doc.addImage(logoImg, 'PNG', pageWidth - 14 - logoW, 6, logoW, logoH)
+        doc.addImage(logoImg, 'PNG', pageWidth - 14 - logoW, 6, logoW, logoH)*/}
 
         // Cards do topo
         const cardY = 52
@@ -197,7 +197,7 @@ export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionad
             )
         }
 
-        doc.save(`livro-caixa-${nomeEmpresa.replace(/\s/g, '_')}-${mesSelecionado}.pdf`)
+        doc.save(`livro-caixa-${nomeUsuario.replace(/\s/g, '_')}-${mesSelecionado}.pdf`)
         setAberto(false)
     }
 

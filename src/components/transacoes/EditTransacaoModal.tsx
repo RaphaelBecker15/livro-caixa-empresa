@@ -11,9 +11,10 @@ import { toast } from "react-toastify";
 
 interface EditTransacaoModalProps {
     clientes: { id: string, name: string, documentType: string }[]
+    produtos: { id: string, name: string, price: number }[]
 }
 
-export function EditTransacaoModal({ clientes }: EditTransacaoModalProps) {
+export function EditTransacaoModal({ clientes, produtos }: EditTransacaoModalProps) {
 
     const supabase = createClient()
 
@@ -26,6 +27,7 @@ export function EditTransacaoModal({ clientes }: EditTransacaoModalProps) {
         amount: transacaoEmEdicao?.amount ?? 0,
         type: transacaoEmEdicao?.type ?? "income",
         clientId: transacaoEmEdicao?.clientId ?? "",
+        productId: transacaoEmEdicao?.productId ?? "",
     })
 
     const [files, setFiles] = useState<File[]>([])
@@ -37,6 +39,15 @@ export function EditTransacaoModal({ clientes }: EditTransacaoModalProps) {
 
     const removerAnexoExistente = (path: string) => {
         setAnexosExistentes(prev => prev.filter(a => a !== path))
+    }
+
+    const handleProductChange = (productId: string) => {
+        const produto = produtos.find(p => p.id === productId)
+        setForm(prev => ({
+            ...prev,
+            productId,
+            amount: produto ? produto.price : prev.amount
+        }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +69,7 @@ export function EditTransacaoModal({ clientes }: EditTransacaoModalProps) {
             for (const file of files) {
                 const ext = file.name.split('.').pop()
                 const nomeBase = file.name.replace(`.${ext}`, '').replace(/[^a-zA-Z0-9._-]/g, '_')
-                const path = `${transacaoEmEdicao.companyId}/${nomeBase}_${Date.now()}.${ext}`
+                const path = `${transacaoEmEdicao.userId}/${nomeBase}_${Date.now()}.${ext}`
 
                 const { error: uploadError } = await supabase.storage
                     .from('attachments')
@@ -72,6 +83,8 @@ export function EditTransacaoModal({ clientes }: EditTransacaoModalProps) {
                 ...transacaoEmEdicao,
                 ...form,
                 amount: parseFloat(String(form.amount)),
+                clientId: form.clientId || null,
+                productId: form.productId || null,
                 attachments: [...anexosExistentes, ...novosAnexos]
             })
         } catch {
@@ -126,6 +139,23 @@ export function EditTransacaoModal({ clientes }: EditTransacaoModalProps) {
                         {clientes.map(c => (
                             <option key={c.id} value={c.id}>
                                 {c.name} ({c.documentType})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
+                        Produto <span className="text-slate-400 font-normal">(opcional)</span>
+                    </label>
+                    <select
+                        value={form.productId ?? ''}
+                        onChange={e => handleProductChange(e.target.value)}
+                        className="text-slate-600 font-medium w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all bg-white"
+                    >
+                        <option value="">Selecione um produto...</option>
+                        {produtos.map(p => (
+                            <option key={p.id} value={p.id}>
+                                {p.name} — R$ {Number(p.price).toFixed(2).replace('.', ',')}
                             </option>
                         ))}
                     </select>

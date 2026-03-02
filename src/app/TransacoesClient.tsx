@@ -1,20 +1,23 @@
 "use client";
-import { useTransacoes } from "@/contexts/empresa/ApiTransacoesContext";
-import { TransactionActionButtons } from "@/components/empresa/TransactionActionButtons";
-import { EditTransacaoModal } from "@/components/empresa/EditTransacaoModal";
-import { ExcluirTransacaoModal } from "@/components/empresa/ExcluirTransacaoModal";
-import { Transacao, Client } from "@/lib/types";
+import { useTransacoes } from "@/contexts/ApiTransacoesContext";
+import { TransactionActionButtons } from "@/components/transacoes/TransactionActionButtons";
+import { EditTransacaoModal } from "@/components/transacoes/EditTransacaoModal";
+import { ExcluirTransacaoModal } from "@/components/transacoes/ExcluirTransacaoModal";
+import { Transacao, Client, Product } from "@/lib/types";
 import { useState } from "react";
 import { Eye } from "lucide-react";
 import { ClienteInfoModal } from "@/components/ClienteInfoModal";
+import { ProductInfoModal } from "@/components/ProductInfoModal";
 
-export function TransacoesClient({ clientes }: {
+export function TransacoesClient({ clientes, produtos }: {
     clientes: Client[]
+    produtos: Product[]
 }) {
 
     const { transacoes, transacaoEmEdicao, mesSelecionado, setMesSelecionado } = useTransacoes()
 
     const [clienteAberto, setClienteAberto] = useState<Client | null>(null)
+    const [produtoAberto, setProdutoAberto] = useState<Product | null>(null)
 
     const [pagina, setPagina] = useState(1)
     const itensPorPagina = 10
@@ -80,24 +83,25 @@ export function TransacoesClient({ clientes }: {
                             <th className="px-6 py-4 font-semibold text-slate-700">Descrição</th>
                             <th className="px-6 py-4 font-semibold text-slate-700">Tipo</th>
                             <th className="px-6 py-4 font-semibold text-slate-700">Cliente</th>
+                            <th className="px-6 py-4 font-semibold text-slate-700">Produto</th>
                             <th className="px-6 py-4 font-semibold text-slate-700 text-right">Valor</th>
                             <th className="px-6 py-4 font-semibold text-slate-700 text-right">Ação</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {transacoesPaginadas.length > 0 ? (
-                            transacoesPaginadas.map((tx: Transacao) => (
-                                <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-sm">{new Date(tx.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
-                                    <td className="px-6 py-4 font-medium text-sm">{tx.description}</td>
-                                    <td className={`px-6 py-4 font-medium ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                        {tx.type === 'income' ? 'Entrada' : 'Saída'}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600 font-medium text-sm">
-                                        {(() => {
-                                            const cliente = clientes.find(c => c.id === tx.clientId)
-                                            if (!cliente) return '—'
-                                            return (
+                            transacoesPaginadas.map((tx: Transacao) => {
+                                const cliente = clientes.find(c => c.id === tx.clientId)
+                                const produto = produtos.find(p => p.id === tx.productId)
+                                return (
+                                    <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-sm">{new Date(tx.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                                        <td className="px-6 py-4 font-medium text-sm">{tx.description}</td>
+                                        <td className={`px-6 py-4 font-medium ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            {tx.type === 'income' ? 'Entrada' : 'Saída'}
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-600 font-medium text-sm">
+                                            {cliente ? (
                                                 <button
                                                     onClick={() => setClienteAberto(cliente)}
                                                     className="cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-blue-600 transition-colors"
@@ -105,20 +109,31 @@ export function TransacoesClient({ clientes }: {
                                                     <Eye size={14} />
                                                     <span>{cliente.name}</span>
                                                 </button>
-                                            )
-                                        })()}
-                                    </td>
-                                    <td className={`px-6 py-4 text-right font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                        {Number(tx.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <TransactionActionButtons id={tx.id} />
-                                    </td>
-                                </tr>
-                            ))
+                                            ) : '—'}
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-600 font-medium text-sm">
+                                            {produto ? (
+                                                <button
+                                                    onClick={() => setProdutoAberto(produto)}
+                                                    className="cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-blue-600 transition-colors"
+                                                >
+                                                    <Eye size={14} />
+                                                    <span>{produto.name}</span>
+                                                </button>
+                                            ) : '—'}
+                                        </td>
+                                        <td className={`px-6 py-4 text-right font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            {Number(tx.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <TransactionActionButtons id={tx.id} />
+                                        </td>
+                                    </tr>
+                                )
+                            })
                         ) : (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                                <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
                                     Nenhum lançamento encontrado.
                                 </td>
                             </tr>
@@ -153,12 +168,19 @@ export function TransacoesClient({ clientes }: {
                     </div>
                 </div>
             )}
-            <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} clientes={clientes}/>
+            <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} clientes={clientes} produtos={produtos}/>
             <ExcluirTransacaoModal key={`exclude-${transacaoEmEdicao?.id ?? 'novo'}`} onExcluir={handleExcluirTransacao}/>
             {clienteAberto && (
                 <ClienteInfoModal
                     cliente={clienteAberto}
                     onClose={() => setClienteAberto(null)}
+                />
+            )}
+
+            {produtoAberto && (
+                <ProductInfoModal
+                    produto={produtoAberto}
+                    onClose={() => setProdutoAberto(null)}
                 />
             )}
         </>

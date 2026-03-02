@@ -3,10 +3,10 @@ import { useTransacoes } from "@/contexts/ApiTransacoesContext"
 import { RelatorioButton } from "@/components/RelatorioButton"
 
 interface Props {
-    nomeEmpresa: string
+    nomeUsuario: string
 }
 
-export function RelatorioButtonWrapper({ nomeEmpresa }: Props) {
+export function RelatorioButtonWrapper({ nomeUsuario }: Props) {
     const { transacoes, mesSelecionado } = useTransacoes()
 
     const transacoesFiltradas = transacoes.filter(tx =>
@@ -18,7 +18,7 @@ export function RelatorioButtonWrapper({ nomeEmpresa }: Props) {
             transacoes={transacoes}
             transacoesFiltradas={transacoesFiltradas}
             mesSelecionado={mesSelecionado}
-            nomeEmpresa={nomeEmpresa}
+            nomeUsuario={nomeUsuario}
         />
     )
 }

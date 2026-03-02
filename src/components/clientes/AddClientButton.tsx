@@ -54,7 +54,7 @@ const emptyForm = {
     estado: '',
 }
 
-export function AddClientButton({ companyId }: { companyId: string }) {
+export function AddClientButton({ userId }: { userId: string }) {
     const supabase = createClient()
     const { adicionarCliente } = useClientes()
 
@@ -91,16 +91,12 @@ export function AddClientButton({ companyId }: { companyId: string }) {
         setLoading(true)
 
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            const workspaceId = user?.app_metadata?.workspaceId
-
             const documentoLimpo = form.document.replace(/\D/g, '')
 
             const { data, error } = await supabase
                 .from('Client')
                 .insert({
-                    companyId,
-                    workspaceId,
+                    userId,
                     document: documentoLimpo,
                     documentType: form.documentType,
                     name: form.name,
@@ -159,7 +155,6 @@ export function AddClientButton({ companyId }: { companyId: string }) {
                         <label className="block text-sm font-semibold text-slate-700 mb-1">{form.documentType}</label>
                         <input required type="text" value={form.document}
                             onChange={e => setForm(prev => ({ ...prev, document: formatDocument(e.target.value, prev.documentType) }))}
-                            placeholder={form.documentType === 'CNPJ' ? '00.000.000/0000-00' : '000.000.000-00'}
                             maxLength={form.documentType === 'CNPJ' ? 18 : 14}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all font-mono" />
                     </div>
@@ -181,7 +176,6 @@ export function AddClientButton({ companyId }: { companyId: string }) {
                         </label>
                         <input type="text" value={form.phone}
                             onChange={e => setForm(prev => ({ ...prev, phone: formatPhone(e.target.value) }))}
-                            placeholder="+55 (00) 00000-0000"
                             maxLength={19}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all font-mono" />
                     </div>
@@ -218,7 +212,6 @@ export function AddClientButton({ companyId }: { companyId: string }) {
                                             setForm(prev => ({ ...prev, cep: formatted }))
                                             if (formatted.replace(/\D/g, '').length === 8) buscarCep(formatted)
                                         }}
-                                        placeholder="00000-000"
                                         maxLength={9}
                                         className="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all font-mono" />
                                     {loadingCep && <p className="text-xs text-slate-400 mt-1">Buscando CEP...</p>}

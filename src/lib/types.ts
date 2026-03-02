@@ -49,10 +49,12 @@ export type Transacao = {
     userId: string
     clientId?: string | null
     client?: Client | null
+    productId?: string | null
+    product?: Product | null
     date: string
     description: string
     amount: number
-    type: 'entrada' | 'saida'
+    type: 'income' | 'expense'
     attachments: string[]
     deletedAt?: string | null
     deletionReason?: string | null

@@ -4,33 +4,40 @@ import { AddTransactionButton } from "@/components/transacoes/AddTransactionButt
 import { TransacoesClient } from "@/app/TransacoesClient";
 import { StatsCards } from "@/components/transacoes/StatsCards";
 import { RelatorioButtonWrapper } from "@/components/transacoes/RelatorioButtonWrapper";
-import { Client } from "@/lib/types";
+import { Client, Product } from "@/lib/types";
 
 export default async function Dashboard() {
 
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data } = await supabase.auth.getUser()
 
-    const companyId = user?.app_metadata?.companyId
-    const workspaceId = user?.app_metadata?.workspaceId
+    const authUser = data.user
+    const userId = authUser!.id
 
-    const { data: empresa } = await supabase
-        .from('Company')
+    const { data: usuario } = await supabase
+        .from('User')
         .select('name')
-        .eq('id', companyId)
+        .eq('id', userId)
         .single()
 
     const { data: transacoes } = await supabase
         .from('Transaction')
         .select('*')
-        .eq('companyId', companyId)
+        .eq('userId', userId)
         .is('deletedAt', null)
         .order('date', { ascending: false })
 
     const { data: clientes } = await supabase
         .from('Client')
         .select('*')
-        .eq('companyId', companyId)
+        .eq('userId', userId)
+        .is('deletedAt', null)
+        .order('name', { ascending: true })
+
+    const { data: produtos } = await supabase
+        .from('Product')
+        .select('id, name, price')
+        .eq('userId', userId)
         .is('deletedAt', null)
         .order('name', { ascending: true })
 
@@ -41,8 +48,8 @@ export default async function Dashboard() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h1 className="text-2xl font-bold text-slate-900">Meu Livro Caixa</h1>
                     <div className="flex flex-row-reverse justify-end md:justify-center items-center md:flex-row gap-3">
-                        <RelatorioButtonWrapper nomeEmpresa={empresa?.name ?? ''} />
-                        <AddTransactionButton companyId={companyId} workspaceId={workspaceId} userId={user!.id} clientes={clientes ?? []}/>
+                        <RelatorioButtonWrapper nomeUsuario={usuario?.name ?? ''} />
+                        <AddTransactionButton userId={userId} clientes={clientes ?? []} produtos={produtos ?? []}/>
                     </div>
                 </div>
 
@@ -53,7 +60,7 @@ export default async function Dashboard() {
 
                 {/* Transactions Table */}
                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <TransacoesClient clientes={(clientes ?? []) as Client[]}/>
+                    <TransacoesClient clientes={(clientes ?? []) as Client[]} produtos={(produtos ?? []) as Product[]}/>
                 </div>
             </div>
         </TransacoesProvider>
