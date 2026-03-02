@@ -5,11 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 export default async function LayoutUser({ children }: { children: ReactNode }) {
   
   const supabase = await createClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getUser()
+  const authUser = data.user
 
   const { data: user } = await supabase
     .from('User')
-    .select('id, name, email, role')
+    .select('id, name, email')
     .eq('id', authUser!.id)
     .single()
 
