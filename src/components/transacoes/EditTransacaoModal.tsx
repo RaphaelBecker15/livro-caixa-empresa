@@ -25,7 +25,7 @@ export function EditTransacaoModal({ clientes, produtos }: EditTransacaoModalPro
         date: transacaoEmEdicao?.date ?? "",
         description: transacaoEmEdicao?.description ?? "",
         amount: transacaoEmEdicao?.amount ?? 0,
-        type: transacaoEmEdicao?.type ?? "income",
+        type: transacaoEmEdicao?.type ?? "entrada",
         clientId: transacaoEmEdicao?.clientId ?? "",
         productId: transacaoEmEdicao?.productId ?? "",
     })
@@ -122,7 +122,7 @@ export function EditTransacaoModal({ clientes, produtos }: EditTransacaoModalPro
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
                     <select value={form.type} onChange={e => setForm(prev => ({ ...prev, type: e.target.value as Transacao['type'] }))} className="cursor-pointer w-full px-3 py-2 border border-slate-300 rounded-md outline-none">
-                        <option value="income">Entrada</option>
+                        <option value="entrada">Entrada</option>
                         <option value="expense">Saída</option>
                     </select>
                 </div>

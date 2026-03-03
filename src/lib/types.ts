@@ -54,7 +54,7 @@ export type Transacao = {
     date: string
     description: string
     amount: number
-    type: 'income' | 'expense'
+    type: 'entrada' | 'expense'
     attachments: string[]
     deletedAt?: string | null
     deletionReason?: string | null

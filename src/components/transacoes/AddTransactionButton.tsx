@@ -26,7 +26,7 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
         date: dataHoje,
         description: '',
         amount: '',
-        type: 'income',
+        type: 'entrada',
         clientId: '',
         productId: '',
     })
@@ -36,7 +36,7 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
     const handleClose = () => {
         setOpenModal(false)
         setFiles([])
-        setForm({ date: dataHoje, description: '', amount: '', type: 'income', clientId: '', productId: '' })
+        setForm({ date: dataHoje, description: '', amount: '', type: 'entrada', clientId: '', productId: '' })
     }
 
     const handleProductChange = (productId: string) => {
@@ -83,12 +83,14 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
                 .select()
                 .single()
 
+                console.log('Erro detalhado:', JSON.stringify(error, null, 2))
+
             if (error) throw error
 
             adicionarTransacao(transacao)
             toast.success('Transação criada com sucesso!')
             setOpenModal(false)
-            setForm({ date: dataHoje, description: '', amount: '', type: 'income', clientId: '', productId: '' })
+            setForm({ date: dataHoje, description: '', amount: '', type: 'entrada', clientId: '', productId: '' })
         } catch {
             if (attachmentPaths.length > 0) {
                 await supabase.storage.from('attachments').remove(attachmentPaths)
@@ -122,7 +124,7 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
                         <select value={form.type} onChange={e => setForm(prev => ({ ...prev, type: e.target.value }))} className="cursor-pointer w-full px-3 py-2 border border-slate-300 rounded-md outline-none">
-                            <option value="income">Entrada</option>
+                            <option value="entrada">Entrada</option>
                             <option value="expense">Saída</option>
                         </select>
                     </div>
