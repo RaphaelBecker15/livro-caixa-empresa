@@ -22,7 +22,7 @@ export function TransacoesClient({ clientes, produtos }: {
     const [pagina, setPagina] = useState(1)
     const itensPorPagina = 10
 
-    const [tipoFiltro, setTipoFiltro] = useState<'all' | 'income' | 'expense'>('all')
+    const [tipoFiltro, setTipoFiltro] = useState<'all' | 'entrada' | 'expense'>('all')
 
     const transacoesFiltradas = transacoes.filter(tx => {
         const pertenceMes = tx.date.startsWith(mesSelecionado)
@@ -41,7 +41,7 @@ export function TransacoesClient({ clientes, produtos }: {
         setMesSelecionado(mes)
     }
 
-    const handleSetTipoFiltro = (tipo: 'all' | 'income' | 'expense') => {
+    const handleSetTipoFiltro = (tipo: 'all' | 'entrada' | 'expense') => {
         setPagina(1)
         setTipoFiltro(tipo)
     }
@@ -65,7 +65,7 @@ export function TransacoesClient({ clientes, produtos }: {
                         <button onClick={() => handleSetTipoFiltro('all')} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'all' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
                             Todos
                         </button>
-                        <button onClick={() => handleSetTipoFiltro('income')} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'income' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
+                        <button onClick={() => handleSetTipoFiltro('entrada')} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'entrada' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
                             Entradas
                         </button>
                         <button onClick={() => handleSetTipoFiltro('expense')} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'expense' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
@@ -97,8 +97,8 @@ export function TransacoesClient({ clientes, produtos }: {
                                     <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-6 py-4 font-medium text-sm">{new Date(tx.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
                                         <td className="px-6 py-4 font-medium text-sm">{tx.description}</td>
-                                        <td className={`px-6 py-4 font-medium ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                            {tx.type === 'income' ? 'Entrada' : 'Saída'}
+                                        <td className={`px-6 py-4 font-medium ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            {tx.type === 'entrada' ? 'Entrada' : 'Saída'}
                                         </td>
                                         <td className="px-6 py-4 text-slate-600 font-medium text-sm">
                                             {cliente ? (
@@ -122,7 +122,7 @@ export function TransacoesClient({ clientes, produtos }: {
                                                 </button>
                                             ) : '—'}
                                         </td>
-                                        <td className={`px-6 py-4 text-right font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        <td className={`px-6 py-4 text-right font-bold ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                             {Number(tx.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                         </td>
                                         <td className="px-6 py-4 text-right">

@@ -8,7 +8,7 @@ interface Transacao {
     date: string
     description: string
     amount: number
-    type: 'income' | 'expense'
+    type: 'entrada' | 'expense'
 }
 
 interface RelatorioButtonProps {
@@ -47,10 +47,10 @@ export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionad
 
     const calcularStats = () => {
         const saldoAcumulado = transacoes.filter(tx => tx.date.substring(0, 7) <= mesSelecionado)
-        const totalEntradasAcumulado = saldoAcumulado.filter(tx => tx.type === 'income').reduce((acc, tx) => acc + Number(tx.amount), 0)
+        const totalEntradasAcumulado = saldoAcumulado.filter(tx => tx.type === 'entrada').reduce((acc, tx) => acc + Number(tx.amount), 0)
         const totalSaidasAcumulado = saldoAcumulado.filter(tx => tx.type === 'expense').reduce((acc, tx) => acc + Number(tx.amount), 0)
         const saldo = totalEntradasAcumulado - totalSaidasAcumulado
-        const entradas = transacoesFiltradas.filter(tx => tx.type === 'income').reduce((acc, tx) => acc + Number(tx.amount), 0)
+        const entradas = transacoesFiltradas.filter(tx => tx.type === 'entrada').reduce((acc, tx) => acc + Number(tx.amount), 0)
         const saidas = transacoesFiltradas.filter(tx => tx.type === 'expense').reduce((acc, tx) => acc + Number(tx.amount), 0)
         return { saldo, entradas, saidas }
     }
@@ -133,7 +133,7 @@ export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionad
             body: transacoesFiltradas.map(tx => [
                 formatDate(tx.date),
                 tx.description,
-                tx.type === 'income' ? 'Entrada' : 'Saída',
+                tx.type === 'entrada' ? 'Entrada' : 'Saída',
                 formatCurrency(Number(tx.amount))
             ]),
             headStyles: {
@@ -164,7 +164,7 @@ export function RelatorioButton({ transacoes, transacoesFiltradas, mesSelecionad
                 if (data.column.index === 3 && data.section === 'body') {
                     const row = transacoesFiltradas[data.row.index]
                     if (row) {
-                        data.cell.styles.textColor = row.type === 'income' ? [22, 163, 74] : [225, 29, 72]
+                        data.cell.styles.textColor = row.type === 'entrada' ? [22, 163, 74] : [225, 29, 72]
                         data.cell.styles.fontStyle = 'bold'
                     }
                 }

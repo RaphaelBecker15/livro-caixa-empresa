@@ -31,7 +31,7 @@ export function StatsCards() {
     })
 
     const totalEntradasAcumulado = saldoAcumulado
-        .filter(tx => tx.type === 'income')
+        .filter(tx => tx.type === 'entrada')
         .reduce((acc, tx) => acc + Number(tx.amount), 0)
 
     const totalSaidasAcumulado = saldoAcumulado
@@ -44,7 +44,7 @@ export function StatsCards() {
     const filtroMes = transacoes.filter(tx => tx.date.startsWith(mesSelecionado))
 
     const totalEntradas = filtroMes
-        .filter(tx => tx.type === 'income')
+        .filter(tx => tx.type === 'entrada')
         .reduce((acc, tx) => acc + Number(tx.amount), 0)
 
     const totalSaidas = filtroMes
