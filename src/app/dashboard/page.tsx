@@ -3,7 +3,6 @@ import { TransacoesProvider } from "@/contexts/ApiTransacoesContext";
 import { AddTransactionButton } from "@/components/transacoes/AddTransactionButton";
 import { TransacoesClient } from "@/app/TransacoesClient";
 import { StatsCards } from "@/components/transacoes/StatsCards";
-import { RelatorioButtonWrapper } from "@/components/transacoes/RelatorioButtonWrapper";
 import { Client, Product } from "@/lib/types";
 
 export default async function Dashboard() {
@@ -41,26 +40,31 @@ export default async function Dashboard() {
         .is('deletedAt', null)
         .order('name', { ascending: true })
 
+    const nomeUsuario = usuario?.name ?? ''
+
     return (
         <TransacoesProvider initialData={transacoes ?? []}>
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h1 className="text-2xl font-bold text-slate-900">Meu Livro Caixa</h1>
-                    <div className="flex flex-row-reverse justify-end md:justify-center items-center md:flex-row gap-3">
-                        <RelatorioButtonWrapper nomeUsuario={usuario?.name ?? ''} />
-                        <AddTransactionButton userId={userId} clientes={clientes ?? []} produtos={produtos ?? []}/>
+                    <div className="flex items-center gap-3">
+                        <AddTransactionButton userId={userId} clientes={clientes ?? []} produtos={produtos ?? []} />
                     </div>
                 </div>
 
-                {/* Stats Cards (Specific to this company) */}
+                {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <StatsCards/>
+                    <StatsCards />
                 </div>
 
-                {/* Transactions Table */}
+                {/* Tabela de transações — relatório e filtros ficam dentro do TransacoesClient */}
                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <TransacoesClient clientes={(clientes ?? []) as Client[]} produtos={(produtos ?? []) as Product[]}/>
+                    <TransacoesClient
+                        clientes={(clientes ?? []) as Client[]}
+                        produtos={(produtos ?? []) as Product[]}
+                        nomeUsuario={nomeUsuario}
+                    />
                 </div>
             </div>
         </TransacoesProvider>
