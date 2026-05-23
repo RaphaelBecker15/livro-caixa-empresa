@@ -3,7 +3,7 @@ import { useTransacoes } from "@/contexts/ApiTransacoesContext";
 import { TransactionActionButtons } from "@/components/transacoes/TransactionActionButtons";
 import { EditTransacaoModal } from "@/components/transacoes/EditTransacaoModal";
 import { ExcluirTransacaoModal } from "@/components/transacoes/ExcluirTransacaoModal";
-import { RelatorioButton } from "@/components/RelatorioButton";
+import { RelatorioButton } from "@/components/transacoes/RelatorioButtonWrapper";
 import { DownloadAnexosButton } from "@/components/transacoes/DownloadAnexosButton";
 import { Transacao, Client, Product } from "@/lib/types";
 import { useState, useMemo } from "react";
