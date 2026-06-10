@@ -76,6 +76,10 @@ export function RelatorioButton({
         const periodo = getMesAno(mesSelecionado)
         const pageWidth = doc.internal.pageSize.getWidth()
 
+        const clipImg = new Image()
+        clipImg.src = '/clip.png'
+        await new Promise(res => { clipImg.onload = res })
+
         // Header
         doc.setFillColor(15, 23, 42)
         doc.rect(0, 0, pageWidth, 44, 'F')
@@ -194,6 +198,17 @@ export function RelatorioButton({
                     data.cell.styles.halign = 'right'
                 }
             },
+            didDrawCell: (data) => {
+                if (data.column.index === 1 && data.section === 'body') {
+                    const tx = txParaRelatorio[data.row.index]
+                    if (tx?.attachments && tx.attachments.length > 0) {
+                        const s = 3.2
+                        const x = data.cell.x + data.cell.width - s - 2.5
+                        const y = data.cell.y + (data.cell.height - s) / 2
+                        doc.addImage(clipImg, 'PNG', x, y, s, s)
+                    }
+                }
+            },
         })
 
         // Rodapé
@@ -204,15 +219,6 @@ export function RelatorioButton({
         doc.setFont('helvetica', 'bold')
         doc.setTextColor(51, 65, 85)
         doc.text(`${txParaRelatorio.length} lançamento(s)`, 14, finalY + 8)
-        doc.setFontSize(8)
-        doc.setFont('helvetica', 'normal')
-        doc.setTextColor(22, 163, 74)
-        doc.text(`Entradas: ${formatCurrency(entradas)}`, pageWidth - 14 - 130, finalY + 8)
-        doc.setTextColor(225, 29, 72)
-        doc.text(`Saídas: ${formatCurrency(saidas)}`, pageWidth - 14 - 65, finalY + 8)
-        doc.setTextColor(37, 99, 235)
-        doc.setFont('helvetica', 'bold')
-        doc.text(`Saldo: ${formatCurrency(entradas - saidas)}`, pageWidth - 14, finalY + 8, { align: 'right' })
 
         // Paginação
         const pageCount = (doc.internal as unknown as { getNumberOfPages: () => number }).getNumberOfPages()
