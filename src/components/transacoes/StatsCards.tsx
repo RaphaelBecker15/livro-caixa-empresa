@@ -35,7 +35,7 @@ export function StatsCards() {
         .reduce((acc, tx) => acc + Number(tx.amount), 0)
 
     const totalSaidasAcumulado = saldoAcumulado
-        .filter(tx => tx.type === 'expense')
+        .filter(tx => tx.type === 'saida')
         .reduce((acc, tx) => acc + Number(tx.amount), 0)
 
     const balance = totalEntradasAcumulado - totalSaidasAcumulado
@@ -47,7 +47,7 @@ export function StatsCards() {
         .reduce((acc, tx) => acc + Number(tx.amount), 0)
 
     const totalSaidas = filtroMes
-        .filter(tx => tx.type === 'expense')
+        .filter(tx => tx.type === 'saida')
         .reduce((acc, tx) => acc + Number(tx.amount), 0)
 
     return (

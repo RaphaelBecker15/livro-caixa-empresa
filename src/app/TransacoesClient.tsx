@@ -5,13 +5,11 @@ import { EditTransacaoModal } from "@/components/transacoes/EditTransacaoModal";
 import { ExcluirTransacaoModal } from "@/components/transacoes/ExcluirTransacaoModal";
 import { RelatorioButton } from "@/components/transacoes/RelatorioButtonWrapper";
 import { DownloadAnexosButton } from "@/components/transacoes/DownloadAnexosButton";
-import { Transacao, Client, Product } from "@/lib/types";
+import { Transacao } from "@/lib/types";
 import { useState, useMemo } from "react";
-import { Eye, ChevronUp, ChevronDown, ChevronsUpDown, SlidersHorizontal, Paperclip, X } from "lucide-react";
-import { ClienteInfoModal } from "@/components/ClienteInfoModal";
-import { ProductInfoModal } from "@/components/ProductInfoModal";
+import { ChevronUp, ChevronDown, ChevronsUpDown, SlidersHorizontal, Paperclip, X } from "lucide-react";
 
-type SortField = 'date' | 'type' | 'client' | 'amount'
+type SortField = 'date' | 'type' | 'amount'
 type SortDir = 'asc' | 'desc'
 
 function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
@@ -21,30 +19,22 @@ function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: 
         : <ChevronDown size={13} className="inline ml-1 text-slate-700" />
 }
 
-export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
-    clientes: Client[]
-    produtos: Product[]
+export function TransacoesClient({ nomeUsuario }: {
     nomeUsuario: string
 }) {
     const { transacoes, transacaoEmEdicao, mesSelecionado, setMesSelecionado } = useTransacoes()
 
-    const [clienteAberto, setClienteAberto] = useState<Client | null>(null)
-    const [produtoAberto, setProdutoAberto] = useState<Product | null>(null)
     const [pagina, setPagina] = useState(1)
     const itensPorPagina = 10
 
-    // Filtros
-    const [tipoFiltro, setTipoFiltro] = useState<'all' | 'entrada' | 'expense'>('all')
-    const [filtroCliente, setFiltroCliente] = useState<string>('all')
+    const [tipoFiltro, setTipoFiltro] = useState<'all' | 'entrada' | 'saida'>('all')
     const [filtroDescricao, setFiltroDescricao] = useState('')
     const [filtroAnexo, setFiltroAnexo] = useState(false)
     const [filtrosExpandidos, setFiltrosExpandidos] = useState(false)
 
-    // Ordenação
     const [sortField, setSortField] = useState<SortField>('date')
     const [sortDir, setSortDir] = useState<SortDir>('desc')
 
-    // Seleção para relatório
     const [selecionados, setSelecionados] = useState<string[]>([])
 
     const resetPagina = () => setPagina(1)
@@ -64,7 +54,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
             .filter(tx => {
                 if (!tx.date.startsWith(mesSelecionado)) return false
                 if (tipoFiltro !== 'all' && tx.type !== tipoFiltro) return false
-                if (filtroCliente !== 'all' && tx.clientId !== filtroCliente) return false
                 if (filtroDescricao && !tx.description.toLowerCase().includes(filtroDescricao.toLowerCase())) return false
                 if (filtroAnexo && (!tx.attachments || tx.attachments.length === 0)) return false
                 return true
@@ -74,14 +63,9 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                 if (sortField === 'date') cmp = a.date.localeCompare(b.date)
                 else if (sortField === 'type') cmp = a.type.localeCompare(b.type)
                 else if (sortField === 'amount') cmp = Number(a.amount) - Number(b.amount)
-                else if (sortField === 'client') {
-                    const nomeA = clientes.find(c => c.id === a.clientId)?.name ?? ''
-                    const nomeB = clientes.find(c => c.id === b.clientId)?.name ?? ''
-                    cmp = nomeA.localeCompare(nomeB, 'pt-BR')
-                }
                 return sortDir === 'asc' ? cmp : -cmp
             })
-    }, [transacoes, mesSelecionado, tipoFiltro, filtroCliente, filtroDescricao, filtroAnexo, sortField, sortDir, clientes])
+    }, [transacoes, mesSelecionado, tipoFiltro, filtroDescricao, filtroAnexo, sortField, sortDir])
 
     const totalPaginas = Math.ceil(transacoesFiltradas.length / itensPorPagina)
     const transacoesPaginadas = transacoesFiltradas.slice(
@@ -89,7 +73,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         pagina * itensPorPagina
     )
 
-    // Seleção
     const todosSelecionados = transacoesFiltradas.length > 0 && transacoesFiltradas.every(tx => selecionados.includes(tx.id))
     const algunsSelecionados = selecionados.length > 0 && !todosSelecionados
 
@@ -115,7 +98,7 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         }
     }
 
-    const filtrosAtivos = tipoFiltro !== 'all' || filtroCliente !== 'all' || filtroDescricao !== '' || filtroAnexo
+    const filtrosAtivos = tipoFiltro !== 'all' || filtroDescricao !== '' || filtroAnexo
 
     const descricaoFiltros = useMemo(() => {
         const partes: string[] = []
@@ -126,19 +109,14 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         })()
         partes.push(`Mês: ${mesLabel}`)
         if (tipoFiltro === 'entrada') partes.push('Tipo: Entradas')
-        if (tipoFiltro === 'expense') partes.push('Tipo: Saídas')
-        if (filtroCliente !== 'all') {
-            const nome = clientes.find(c => c.id === filtroCliente)?.name ?? ''
-            partes.push(`Cliente: ${nome}`)
-        }
+        if (tipoFiltro === 'saida') partes.push('Tipo: Saídas')
         if (filtroDescricao) partes.push(`Descrição: "${filtroDescricao}"`)
         if (filtroAnexo) partes.push('Com anexo')
         return partes.join(' · ')
-    }, [mesSelecionado, tipoFiltro, filtroCliente, filtroDescricao, filtroAnexo, clientes])
+    }, [mesSelecionado, tipoFiltro, filtroDescricao, filtroAnexo])
 
     const limparFiltros = () => {
         setTipoFiltro('all')
-        setFiltroCliente('all')
         setFiltroDescricao('')
         setFiltroAnexo(false)
         resetPagina()
@@ -164,7 +142,7 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                     <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
                         <button onClick={() => { setTipoFiltro('all'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'all' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Todos</button>
                         <button onClick={() => { setTipoFiltro('entrada'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'entrada' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Entradas</button>
-                        <button onClick={() => { setTipoFiltro('expense'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'expense' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Saídas</button>
+                        <button onClick={() => { setTipoFiltro('saida'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'saida' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Saídas</button>
                     </div>
                     {/* Mês */}
                     <input
@@ -191,8 +169,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                         transacoesSelecionadas={selecionados}
                         mesSelecionado={mesSelecionado}
                         nomeUsuario={nomeUsuario}
-                        clientes={clientes}
-                        produtos={produtos}
                         descricaoFiltros={descricaoFiltros}
                     />
                     <DownloadAnexosButton
@@ -214,20 +190,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                             onChange={e => { setFiltroDescricao(e.target.value); resetPagina() }}
                             className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-slate-300"
                         />
-                    </div>
-                    <div className="flex flex-col gap-1 min-w-[160px]">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Cliente</label>
-                        <select
-                            value={filtroCliente}
-                            onChange={e => { setFiltroCliente(e.target.value); resetPagina() }}
-                            className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-                        >
-                            <option value="all">Todos os clientes</option>
-                            <option value="">— Sem cliente</option>
-                            {clientes.map(c => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
                     </div>
                     <div className="flex flex-col gap-1">
                         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anexos</label>
@@ -282,12 +244,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                                     Tipo <SortIcon field="type" sortField={sortField} sortDir={sortDir} />
                                 </button>
                             </th>
-                            <th className="px-4 py-4 font-semibold text-slate-700">
-                                <button onClick={() => handleSort('client')} className="cursor-pointer flex items-center hover:text-slate-900">
-                                    Cliente <SortIcon field="client" sortField={sortField} sortDir={sortDir} />
-                                </button>
-                            </th>
-                            <th className="px-4 py-4 font-semibold text-slate-700">Produto</th>
                             <th className="px-4 py-4 font-semibold text-slate-700 text-right">
                                 <button onClick={() => handleSort('amount')} className="cursor-pointer flex items-center ml-auto hover:text-slate-900">
                                     Valor <SortIcon field="amount" sortField={sortField} sortDir={sortDir} />
@@ -300,8 +256,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                         {transacoesPaginadas.length > 0 ? (
                             transacoesPaginadas.map((tx: Transacao) => {
                                 const isSelecionado = selecionados.includes(tx.id)
-                                const cliente = clientes.find(c => c.id === tx.clientId)
-                                const produto = produtos.find(p => p.id === tx.productId)
                                 return (
                                     <tr
                                         key={tx.id}
@@ -328,28 +282,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                                         </td>
                                         <td className={`px-4 py-4 font-medium ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                             {tx.type === 'entrada' ? 'Entrada' : 'Saída'}
-                                        </td>
-                                        <td className="px-4 py-4 text-slate-600 font-medium text-sm">
-                                            {cliente ? (
-                                                <button
-                                                    onClick={() => setClienteAberto(cliente)}
-                                                    className="cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-blue-600 transition-colors"
-                                                >
-                                                    <Eye size={14} />
-                                                    <span>{cliente.name}</span>
-                                                </button>
-                                            ) : <span className="text-slate-300">—</span>}
-                                        </td>
-                                        <td className="px-4 py-4 text-slate-600 font-medium text-sm">
-                                            {produto ? (
-                                                <button
-                                                    onClick={() => setProdutoAberto(produto)}
-                                                    className="cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-blue-600 transition-colors"
-                                                >
-                                                    <Eye size={14} />
-                                                    <span>{produto.name}</span>
-                                                </button>
-                                            ) : <span className="text-slate-300">—</span>}
                                         </td>
                                         <td className={`px-4 py-4 text-right font-bold ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                             {Number(tx.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -386,10 +318,8 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                 </div>
             )}
 
-            <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} clientes={clientes} produtos={produtos} />
+            <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} />
             <ExcluirTransacaoModal key={`exclude-${transacaoEmEdicao?.id ?? 'novo'}`} onExcluir={handleExcluirTransacao} />
-            {clienteAberto && <ClienteInfoModal cliente={clienteAberto} onClose={() => setClienteAberto(null)} />}
-            {produtoAberto && <ProductInfoModal produto={produtoAberto} onClose={() => setProdutoAberto(null)} />}
         </>
     )
 }

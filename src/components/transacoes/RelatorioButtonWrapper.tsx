@@ -9,20 +9,8 @@ interface Transacao {
     date: string
     description: string
     amount: number
-    type: 'entrada' | 'expense'
-    clientId?: string | null
-    productId?: string | null
+    type: 'entrada' | 'saida'
     attachments?: string[]
-}
-
-interface Cliente {
-    id: string
-    name: string
-}
-
-interface Produto {
-    id: string
-    name: string
 }
 
 interface RelatorioButtonProps {
@@ -31,8 +19,6 @@ interface RelatorioButtonProps {
     transacoesSelecionadas?: string[]
     mesSelecionado: string
     nomeUsuario: string
-    clientes?: Cliente[]
-    produtos?: Produto[]
     descricaoFiltros?: string
 }
 
@@ -54,8 +40,6 @@ export function RelatorioButton({
     transacoesSelecionadas = [],
     mesSelecionado,
     nomeUsuario,
-    clientes = [],
-    produtos = [],
     descricaoFiltros,
 }: RelatorioButtonProps) {
 
@@ -79,10 +63,10 @@ export function RelatorioButton({
     const calcularStats = () => {
         const saldoAcumulado = transacoes.filter(tx => tx.date.substring(0, 7) <= mesSelecionado)
         const totalEntradasAcumulado = saldoAcumulado.filter(tx => tx.type === 'entrada').reduce((acc, tx) => acc + Number(tx.amount), 0)
-        const totalSaidasAcumulado = saldoAcumulado.filter(tx => tx.type === 'expense').reduce((acc, tx) => acc + Number(tx.amount), 0)
+        const totalSaidasAcumulado = saldoAcumulado.filter(tx => tx.type === 'saida').reduce((acc, tx) => acc + Number(tx.amount), 0)
         const saldo = totalEntradasAcumulado - totalSaidasAcumulado
         const entradas = txParaRelatorio.filter(tx => tx.type === 'entrada').reduce((acc, tx) => acc + Number(tx.amount), 0)
-        const saidas = txParaRelatorio.filter(tx => tx.type === 'expense').reduce((acc, tx) => acc + Number(tx.amount), 0)
+        const saidas = txParaRelatorio.filter(tx => tx.type === 'saida').reduce((acc, tx) => acc + Number(tx.amount), 0)
         return { saldo, entradas, saidas }
     }
 
@@ -91,6 +75,10 @@ export function RelatorioButton({
         const { saldo, entradas, saidas } = calcularStats()
         const periodo = getMesAno(mesSelecionado)
         const pageWidth = doc.internal.pageSize.getWidth()
+
+        const clipImg = new Image()
+        clipImg.src = '/clip.png'
+        await new Promise(res => { clipImg.onload = res })
 
         // Header
         doc.setFillColor(15, 23, 42)
@@ -174,16 +162,12 @@ export function RelatorioButton({
         // Tabela
         autoTable(doc, {
             startY: cardY + 40,
-            head: [['Data', 'Descrição', 'Tipo', 'Cliente', 'Produto', 'Valor']],
+            head: [['Data', 'Descrição', 'Tipo', 'Valor']],
             body: txParaRelatorio.map(tx => {
-                const cliente = clientes.find(c => c.id === tx.clientId)
-                const produto = produtos.find(p => p.id === tx.productId)
                 return [
                     formatDate(tx.date),
                     tx.description,
                     tx.type === 'entrada' ? 'Entrada' : 'Saída',
-                    cliente?.name ?? '—',
-                    produto?.name ?? '—',
                     formatCurrency(Number(tx.amount)),
                 ]
             }),
@@ -214,6 +198,17 @@ export function RelatorioButton({
                     data.cell.styles.halign = 'right'
                 }
             },
+            didDrawCell: (data) => {
+                if (data.column.index === 1 && data.section === 'body') {
+                    const tx = txParaRelatorio[data.row.index]
+                    if (tx?.attachments && tx.attachments.length > 0) {
+                        const s = 3.2
+                        const x = data.cell.x + data.cell.width - s - 2.5
+                        const y = data.cell.y + (data.cell.height - s) / 2
+                        doc.addImage(clipImg, 'PNG', x, y, s, s)
+                    }
+                }
+            },
         })
 
         // Rodapé
@@ -224,15 +219,6 @@ export function RelatorioButton({
         doc.setFont('helvetica', 'bold')
         doc.setTextColor(51, 65, 85)
         doc.text(`${txParaRelatorio.length} lançamento(s)`, 14, finalY + 8)
-        doc.setFontSize(8)
-        doc.setFont('helvetica', 'normal')
-        doc.setTextColor(22, 163, 74)
-        doc.text(`Entradas: ${formatCurrency(entradas)}`, pageWidth - 14 - 130, finalY + 8)
-        doc.setTextColor(225, 29, 72)
-        doc.text(`Saídas: ${formatCurrency(saidas)}`, pageWidth - 14 - 65, finalY + 8)
-        doc.setTextColor(37, 99, 235)
-        doc.setFont('helvetica', 'bold')
-        doc.text(`Saldo: ${formatCurrency(entradas - saidas)}`, pageWidth - 14, finalY + 8, { align: 'right' })
 
         // Paginação
         const pageCount = (doc.internal as unknown as { getNumberOfPages: () => number }).getNumberOfPages()
