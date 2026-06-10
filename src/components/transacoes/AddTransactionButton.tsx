@@ -9,11 +9,9 @@ import { toast } from "react-toastify";
 
 interface AddTransactionButtonProps {
     userId: string
-    clientes: { id: string, name: string, documentType: string, document: string }[]
-    produtos: { id: string, name: string, price: number }[]
 }
 
-export function AddTransactionButton({ userId, clientes, produtos }: AddTransactionButtonProps) {
+export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
     const supabase = createClient()
     const { adicionarTransacao } = useTransacoes()
 
@@ -39,14 +37,14 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
         setForm({ date: dataHoje, description: '', amount: '', type: 'entrada', clientId: '', productId: '' })
     }
 
-    const handleProductChange = (productId: string) => {
+    {/*const handleProductChange = (productId: string) => {
         const produto = produtos.find(p => p.id === productId)
         setForm(prev => ({
             ...prev,
             productId,
             amount: produto ? produto.price.toString() : prev.amount
         }))
-    }
+    }*/}
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -125,10 +123,10 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
                         <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
                         <select value={form.type} onChange={e => setForm(prev => ({ ...prev, type: e.target.value }))} className="cursor-pointer w-full px-3 py-2 border border-slate-300 rounded-md outline-none">
                             <option value="entrada">Entrada</option>
-                            <option value="expense">Saída</option>
+                            <option value="saida">Saída</option>
                         </select>
                     </div>
-                    <div>
+                    {/*<div>
                         <label className="block text-sm font-semibold text-slate-700 mb-1">
                             Cliente <span className="text-slate-400 font-normal">(opcional)</span>
                         </label>
@@ -161,7 +159,7 @@ export function AddTransactionButton({ userId, clientes, produtos }: AddTransact
                                 </option>
                             ))}
                         </select>
-                    </div>
+                    </div>*/}
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-slate-700 mb-1">Anexos</label>
                         <FileUpload files={files} onChange={setFiles}/>

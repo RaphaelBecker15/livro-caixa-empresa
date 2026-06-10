@@ -7,9 +7,7 @@ import { RelatorioButton } from "@/components/transacoes/RelatorioButtonWrapper"
 import { DownloadAnexosButton } from "@/components/transacoes/DownloadAnexosButton";
 import { Transacao, Client, Product } from "@/lib/types";
 import { useState, useMemo } from "react";
-import { Eye, ChevronUp, ChevronDown, ChevronsUpDown, SlidersHorizontal, Paperclip, X } from "lucide-react";
-import { ClienteInfoModal } from "@/components/ClienteInfoModal";
-import { ProductInfoModal } from "@/components/ProductInfoModal";
+import { ChevronUp, ChevronDown, ChevronsUpDown, SlidersHorizontal, Paperclip, X } from "lucide-react";
 
 type SortField = 'date' | 'type' | 'client' | 'amount'
 type SortDir = 'asc' | 'desc'
@@ -28,23 +26,18 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
 }) {
     const { transacoes, transacaoEmEdicao, mesSelecionado, setMesSelecionado } = useTransacoes()
 
-    const [clienteAberto, setClienteAberto] = useState<Client | null>(null)
-    const [produtoAberto, setProdutoAberto] = useState<Product | null>(null)
     const [pagina, setPagina] = useState(1)
     const itensPorPagina = 10
 
-    // Filtros
-    const [tipoFiltro, setTipoFiltro] = useState<'all' | 'entrada' | 'expense'>('all')
+    const [tipoFiltro, setTipoFiltro] = useState<'all' | 'entrada' | 'saida'>('all')
     const [filtroCliente, setFiltroCliente] = useState<string>('all')
     const [filtroDescricao, setFiltroDescricao] = useState('')
     const [filtroAnexo, setFiltroAnexo] = useState(false)
     const [filtrosExpandidos, setFiltrosExpandidos] = useState(false)
 
-    // Ordenação
     const [sortField, setSortField] = useState<SortField>('date')
     const [sortDir, setSortDir] = useState<SortDir>('desc')
 
-    // Seleção para relatório
     const [selecionados, setSelecionados] = useState<string[]>([])
 
     const resetPagina = () => setPagina(1)
@@ -126,7 +119,7 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         })()
         partes.push(`Mês: ${mesLabel}`)
         if (tipoFiltro === 'entrada') partes.push('Tipo: Entradas')
-        if (tipoFiltro === 'expense') partes.push('Tipo: Saídas')
+        if (tipoFiltro === 'saida') partes.push('Tipo: Saídas')
         if (filtroCliente !== 'all') {
             const nome = clientes.find(c => c.id === filtroCliente)?.name ?? ''
             partes.push(`Cliente: ${nome}`)
@@ -164,7 +157,7 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                     <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
                         <button onClick={() => { setTipoFiltro('all'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'all' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Todos</button>
                         <button onClick={() => { setTipoFiltro('entrada'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'entrada' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Entradas</button>
-                        <button onClick={() => { setTipoFiltro('expense'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'expense' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Saídas</button>
+                        <button onClick={() => { setTipoFiltro('saida'); resetPagina() }} className={`cursor-pointer px-3 py-2 transition-colors ${tipoFiltro === 'saida' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>Saídas</button>
                     </div>
                     {/* Mês */}
                     <input
@@ -282,12 +275,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                                     Tipo <SortIcon field="type" sortField={sortField} sortDir={sortDir} />
                                 </button>
                             </th>
-                            <th className="px-4 py-4 font-semibold text-slate-700">
-                                <button onClick={() => handleSort('client')} className="cursor-pointer flex items-center hover:text-slate-900">
-                                    Cliente <SortIcon field="client" sortField={sortField} sortDir={sortDir} />
-                                </button>
-                            </th>
-                            <th className="px-4 py-4 font-semibold text-slate-700">Produto</th>
                             <th className="px-4 py-4 font-semibold text-slate-700 text-right">
                                 <button onClick={() => handleSort('amount')} className="cursor-pointer flex items-center ml-auto hover:text-slate-900">
                                     Valor <SortIcon field="amount" sortField={sortField} sortDir={sortDir} />
@@ -300,8 +287,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                         {transacoesPaginadas.length > 0 ? (
                             transacoesPaginadas.map((tx: Transacao) => {
                                 const isSelecionado = selecionados.includes(tx.id)
-                                const cliente = clientes.find(c => c.id === tx.clientId)
-                                const produto = produtos.find(p => p.id === tx.productId)
                                 return (
                                     <tr
                                         key={tx.id}
@@ -328,28 +313,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                                         </td>
                                         <td className={`px-4 py-4 font-medium ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                             {tx.type === 'entrada' ? 'Entrada' : 'Saída'}
-                                        </td>
-                                        <td className="px-4 py-4 text-slate-600 font-medium text-sm">
-                                            {cliente ? (
-                                                <button
-                                                    onClick={() => setClienteAberto(cliente)}
-                                                    className="cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-blue-600 transition-colors"
-                                                >
-                                                    <Eye size={14} />
-                                                    <span>{cliente.name}</span>
-                                                </button>
-                                            ) : <span className="text-slate-300">—</span>}
-                                        </td>
-                                        <td className="px-4 py-4 text-slate-600 font-medium text-sm">
-                                            {produto ? (
-                                                <button
-                                                    onClick={() => setProdutoAberto(produto)}
-                                                    className="cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-blue-600 transition-colors"
-                                                >
-                                                    <Eye size={14} />
-                                                    <span>{produto.name}</span>
-                                                </button>
-                                            ) : <span className="text-slate-300">—</span>}
                                         </td>
                                         <td className={`px-4 py-4 text-right font-bold ${tx.type === 'entrada' ? 'text-emerald-600' : 'text-rose-600'}`}>
                                             {Number(tx.amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -386,10 +349,10 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                 </div>
             )}
 
-            <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} clientes={clientes} produtos={produtos} />
+            <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} />
             <ExcluirTransacaoModal key={`exclude-${transacaoEmEdicao?.id ?? 'novo'}`} onExcluir={handleExcluirTransacao} />
-            {clienteAberto && <ClienteInfoModal cliente={clienteAberto} onClose={() => setClienteAberto(null)} />}
-            {produtoAberto && <ProductInfoModal produto={produtoAberto} onClose={() => setProdutoAberto(null)} />}
+            {/*{clienteAberto && <ClienteInfoModal cliente={clienteAberto} onClose={() => setClienteAberto(null)} />}
+            {produtoAberto && <ProductInfoModal produto={produtoAberto} onClose={() => setProdutoAberto(null)} />}*/}
         </>
     )
 }

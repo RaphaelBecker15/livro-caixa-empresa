@@ -9,7 +9,7 @@ interface Transacao {
     date: string
     description: string
     amount: number
-    type: 'entrada' | 'expense'
+    type: 'entrada' | 'saida'
     clientId?: string | null
     productId?: string | null
     attachments?: string[]
@@ -79,10 +79,10 @@ export function RelatorioButton({
     const calcularStats = () => {
         const saldoAcumulado = transacoes.filter(tx => tx.date.substring(0, 7) <= mesSelecionado)
         const totalEntradasAcumulado = saldoAcumulado.filter(tx => tx.type === 'entrada').reduce((acc, tx) => acc + Number(tx.amount), 0)
-        const totalSaidasAcumulado = saldoAcumulado.filter(tx => tx.type === 'expense').reduce((acc, tx) => acc + Number(tx.amount), 0)
+        const totalSaidasAcumulado = saldoAcumulado.filter(tx => tx.type === 'saida').reduce((acc, tx) => acc + Number(tx.amount), 0)
         const saldo = totalEntradasAcumulado - totalSaidasAcumulado
         const entradas = txParaRelatorio.filter(tx => tx.type === 'entrada').reduce((acc, tx) => acc + Number(tx.amount), 0)
-        const saidas = txParaRelatorio.filter(tx => tx.type === 'expense').reduce((acc, tx) => acc + Number(tx.amount), 0)
+        const saidas = txParaRelatorio.filter(tx => tx.type === 'saida').reduce((acc, tx) => acc + Number(tx.amount), 0)
         return { saldo, entradas, saidas }
     }
 
