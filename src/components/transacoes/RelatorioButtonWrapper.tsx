@@ -10,19 +10,7 @@ interface Transacao {
     description: string
     amount: number
     type: 'entrada' | 'saida'
-    clientId?: string | null
-    productId?: string | null
     attachments?: string[]
-}
-
-interface Cliente {
-    id: string
-    name: string
-}
-
-interface Produto {
-    id: string
-    name: string
 }
 
 interface RelatorioButtonProps {
@@ -31,8 +19,6 @@ interface RelatorioButtonProps {
     transacoesSelecionadas?: string[]
     mesSelecionado: string
     nomeUsuario: string
-    clientes?: Cliente[]
-    produtos?: Produto[]
     descricaoFiltros?: string
 }
 
@@ -54,8 +40,6 @@ export function RelatorioButton({
     transacoesSelecionadas = [],
     mesSelecionado,
     nomeUsuario,
-    clientes = [],
-    produtos = [],
     descricaoFiltros,
 }: RelatorioButtonProps) {
 
@@ -174,16 +158,12 @@ export function RelatorioButton({
         // Tabela
         autoTable(doc, {
             startY: cardY + 40,
-            head: [['Data', 'Descrição', 'Tipo', 'Cliente', 'Produto', 'Valor']],
+            head: [['Data', 'Descrição', 'Tipo', 'Valor']],
             body: txParaRelatorio.map(tx => {
-                const cliente = clientes.find(c => c.id === tx.clientId)
-                const produto = produtos.find(p => p.id === tx.productId)
                 return [
                     formatDate(tx.date),
                     tx.description,
                     tx.type === 'entrada' ? 'Entrada' : 'Saída',
-                    cliente?.name ?? '—',
-                    produto?.name ?? '—',
                     formatCurrency(Number(tx.amount)),
                 ]
             }),

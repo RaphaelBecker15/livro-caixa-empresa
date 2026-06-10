@@ -5,11 +5,11 @@ import { EditTransacaoModal } from "@/components/transacoes/EditTransacaoModal";
 import { ExcluirTransacaoModal } from "@/components/transacoes/ExcluirTransacaoModal";
 import { RelatorioButton } from "@/components/transacoes/RelatorioButtonWrapper";
 import { DownloadAnexosButton } from "@/components/transacoes/DownloadAnexosButton";
-import { Transacao, Client, Product } from "@/lib/types";
+import { Transacao } from "@/lib/types";
 import { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown, ChevronsUpDown, SlidersHorizontal, Paperclip, X } from "lucide-react";
 
-type SortField = 'date' | 'type' | 'client' | 'amount'
+type SortField = 'date' | 'type' | 'amount'
 type SortDir = 'asc' | 'desc'
 
 function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
@@ -19,9 +19,7 @@ function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: 
         : <ChevronDown size={13} className="inline ml-1 text-slate-700" />
 }
 
-export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
-    clientes: Client[]
-    produtos: Product[]
+export function TransacoesClient({ nomeUsuario }: {
     nomeUsuario: string
 }) {
     const { transacoes, transacaoEmEdicao, mesSelecionado, setMesSelecionado } = useTransacoes()
@@ -30,7 +28,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
     const itensPorPagina = 10
 
     const [tipoFiltro, setTipoFiltro] = useState<'all' | 'entrada' | 'saida'>('all')
-    const [filtroCliente, setFiltroCliente] = useState<string>('all')
     const [filtroDescricao, setFiltroDescricao] = useState('')
     const [filtroAnexo, setFiltroAnexo] = useState(false)
     const [filtrosExpandidos, setFiltrosExpandidos] = useState(false)
@@ -57,7 +54,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
             .filter(tx => {
                 if (!tx.date.startsWith(mesSelecionado)) return false
                 if (tipoFiltro !== 'all' && tx.type !== tipoFiltro) return false
-                if (filtroCliente !== 'all' && tx.clientId !== filtroCliente) return false
                 if (filtroDescricao && !tx.description.toLowerCase().includes(filtroDescricao.toLowerCase())) return false
                 if (filtroAnexo && (!tx.attachments || tx.attachments.length === 0)) return false
                 return true
@@ -67,14 +63,9 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                 if (sortField === 'date') cmp = a.date.localeCompare(b.date)
                 else if (sortField === 'type') cmp = a.type.localeCompare(b.type)
                 else if (sortField === 'amount') cmp = Number(a.amount) - Number(b.amount)
-                else if (sortField === 'client') {
-                    const nomeA = clientes.find(c => c.id === a.clientId)?.name ?? ''
-                    const nomeB = clientes.find(c => c.id === b.clientId)?.name ?? ''
-                    cmp = nomeA.localeCompare(nomeB, 'pt-BR')
-                }
                 return sortDir === 'asc' ? cmp : -cmp
             })
-    }, [transacoes, mesSelecionado, tipoFiltro, filtroCliente, filtroDescricao, filtroAnexo, sortField, sortDir, clientes])
+    }, [transacoes, mesSelecionado, tipoFiltro, filtroDescricao, filtroAnexo, sortField, sortDir])
 
     const totalPaginas = Math.ceil(transacoesFiltradas.length / itensPorPagina)
     const transacoesPaginadas = transacoesFiltradas.slice(
@@ -82,7 +73,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         pagina * itensPorPagina
     )
 
-    // Seleção
     const todosSelecionados = transacoesFiltradas.length > 0 && transacoesFiltradas.every(tx => selecionados.includes(tx.id))
     const algunsSelecionados = selecionados.length > 0 && !todosSelecionados
 
@@ -108,7 +98,7 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         }
     }
 
-    const filtrosAtivos = tipoFiltro !== 'all' || filtroCliente !== 'all' || filtroDescricao !== '' || filtroAnexo
+    const filtrosAtivos = tipoFiltro !== 'all' || filtroDescricao !== '' || filtroAnexo
 
     const descricaoFiltros = useMemo(() => {
         const partes: string[] = []
@@ -120,18 +110,13 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
         partes.push(`Mês: ${mesLabel}`)
         if (tipoFiltro === 'entrada') partes.push('Tipo: Entradas')
         if (tipoFiltro === 'saida') partes.push('Tipo: Saídas')
-        if (filtroCliente !== 'all') {
-            const nome = clientes.find(c => c.id === filtroCliente)?.name ?? ''
-            partes.push(`Cliente: ${nome}`)
-        }
         if (filtroDescricao) partes.push(`Descrição: "${filtroDescricao}"`)
         if (filtroAnexo) partes.push('Com anexo')
         return partes.join(' · ')
-    }, [mesSelecionado, tipoFiltro, filtroCliente, filtroDescricao, filtroAnexo, clientes])
+    }, [mesSelecionado, tipoFiltro, filtroDescricao, filtroAnexo])
 
     const limparFiltros = () => {
         setTipoFiltro('all')
-        setFiltroCliente('all')
         setFiltroDescricao('')
         setFiltroAnexo(false)
         resetPagina()
@@ -184,8 +169,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                         transacoesSelecionadas={selecionados}
                         mesSelecionado={mesSelecionado}
                         nomeUsuario={nomeUsuario}
-                        clientes={clientes}
-                        produtos={produtos}
                         descricaoFiltros={descricaoFiltros}
                     />
                     <DownloadAnexosButton
@@ -207,20 +190,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
                             onChange={e => { setFiltroDescricao(e.target.value); resetPagina() }}
                             className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-slate-300"
                         />
-                    </div>
-                    <div className="flex flex-col gap-1 min-w-[160px]">
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Cliente</label>
-                        <select
-                            value={filtroCliente}
-                            onChange={e => { setFiltroCliente(e.target.value); resetPagina() }}
-                            className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-                        >
-                            <option value="all">Todos os clientes</option>
-                            <option value="">— Sem cliente</option>
-                            {clientes.map(c => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
                     </div>
                     <div className="flex flex-col gap-1">
                         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Anexos</label>
@@ -351,8 +320,6 @@ export function TransacoesClient({ clientes, produtos, nomeUsuario }: {
 
             <EditTransacaoModal key={`edit-${transacaoEmEdicao?.id ?? 'novo'}`} />
             <ExcluirTransacaoModal key={`exclude-${transacaoEmEdicao?.id ?? 'novo'}`} onExcluir={handleExcluirTransacao} />
-            {/*{clienteAberto && <ClienteInfoModal cliente={clienteAberto} onClose={() => setClienteAberto(null)} />}
-            {produtoAberto && <ProductInfoModal produto={produtoAberto} onClose={() => setProdutoAberto(null)} />}*/}
         </>
     )
 }

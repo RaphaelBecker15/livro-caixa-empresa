@@ -52,8 +52,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                 <nav className='flex-1 p-4 space-y-2'>
                     <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" currentPath={pathname}/>
-                    {/*<NavItem to="/clientes" icon={Users} label="Clientes" currentPath={pathname}/>
-                    <NavItem to="/produtos" icon={Package} label="Produtos" currentPath={pathname}/>*/}
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">

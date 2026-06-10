@@ -21,8 +21,6 @@ export function EditTransacaoModal() {
         description: transacaoEmEdicao?.description ?? "",
         amount: transacaoEmEdicao?.amount ?? 0,
         type: transacaoEmEdicao?.type ?? "entrada",
-        clientId: transacaoEmEdicao?.clientId ?? "",
-        productId: transacaoEmEdicao?.productId ?? "",
     })
 
     const [files, setFiles] = useState<File[]>([])
@@ -35,15 +33,6 @@ export function EditTransacaoModal() {
     const removerAnexoExistente = (path: string) => {
         setAnexosExistentes(prev => prev.filter(a => a !== path))
     }
-
-    {/*const handleProductChange = (productId: string) => {
-        const produto = produtos.find(p => p.id === productId)
-        setForm(prev => ({
-            ...prev,
-            productId,
-            amount: produto ? produto.price : prev.amount
-        }))
-    }*/}
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -78,8 +67,6 @@ export function EditTransacaoModal() {
                 ...transacaoEmEdicao,
                 ...form,
                 amount: parseFloat(String(form.amount)),
-                clientId: form.clientId || null,
-                productId: form.productId || null,
                 attachments: [...anexosExistentes, ...novosAnexos]
             })
         } catch {
@@ -121,40 +108,6 @@ export function EditTransacaoModal() {
                         <option value="saida">Saída</option>
                     </select>
                 </div>
-                {/*<div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">
-                        Cliente <span className="text-slate-400 font-normal">(opcional)</span>
-                    </label>
-                    <select
-                        value={form.clientId ?? ''}
-                        onChange={e => setForm(prev => ({ ...prev, clientId: e.target.value }))}
-                        className="text-slate-600 font-medium w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all bg-white"
-                    >
-                        <option value="">Selecione um cliente...</option>
-                        {clientes.map(c => (
-                            <option key={c.id} value={c.id}>
-                                {c.name} ({c.documentType})
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">
-                        Produto <span className="text-slate-400 font-normal">(opcional)</span>
-                    </label>
-                    <select
-                        value={form.productId ?? ''}
-                        onChange={e => handleProductChange(e.target.value)}
-                        className="text-slate-600 font-medium w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all bg-white"
-                    >
-                        <option value="">Selecione um produto...</option>
-                        {produtos.map(p => (
-                            <option key={p.id} value={p.id}>
-                                {p.name} — R$ {Number(p.price).toFixed(2).replace('.', ',')}
-                            </option>
-                        ))}
-                    </select>
-                </div>*/}
                 <div className="md:col-span-2 space-y-2">
                     <label className="block text-sm font-medium text-slate-700 mb-1">Anexos</label>
                     {anexosExistentes.length > 0 && (

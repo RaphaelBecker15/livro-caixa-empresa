@@ -25,8 +25,6 @@ export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
         description: '',
         amount: '',
         type: 'entrada',
-        clientId: '',
-        productId: '',
     })
 
     const [files, setFiles] = useState<File[]>([])
@@ -34,17 +32,8 @@ export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
     const handleClose = () => {
         setOpenModal(false)
         setFiles([])
-        setForm({ date: dataHoje, description: '', amount: '', type: 'entrada', clientId: '', productId: '' })
+        setForm({ date: dataHoje, description: '', amount: '', type: 'entrada' })
     }
-
-    {/*const handleProductChange = (productId: string) => {
-        const produto = produtos.find(p => p.id === productId)
-        setForm(prev => ({
-            ...prev,
-            productId,
-            amount: produto ? produto.price.toString() : prev.amount
-        }))
-    }*/}
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -75,8 +64,6 @@ export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
                     type: form.type,
                     userId,
                     attachments: attachmentPaths,
-                    clientId: form.clientId || null,
-                    productId: form.productId || null,
                 })
                 .select()
                 .single()
@@ -88,7 +75,7 @@ export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
             adicionarTransacao(transacao)
             toast.success('Transação criada com sucesso!')
             setOpenModal(false)
-            setForm({ date: dataHoje, description: '', amount: '', type: 'entrada', clientId: '', productId: '' })
+            setForm({ date: dataHoje, description: '', amount: '', type: 'entrada' })
         } catch {
             if (attachmentPaths.length > 0) {
                 await supabase.storage.from('attachments').remove(attachmentPaths)
@@ -126,40 +113,6 @@ export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
                             <option value="saida">Saída</option>
                         </select>
                     </div>
-                    {/*<div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1">
-                            Cliente <span className="text-slate-400 font-normal">(opcional)</span>
-                        </label>
-                        <select
-                            value={form.clientId}
-                            onChange={e => setForm(prev => ({ ...prev, clientId: e.target.value }))}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none transition-all bg-white"
-                        >
-                            <option value="">Selecione um cliente...</option>
-                            {clientes.map(c => (
-                                <option key={c.id} value={c.id}>
-                                    {c.name} ({c.documentType})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1">
-                            Produto <span className="text-slate-400 font-normal">(opcional)</span>
-                        </label>
-                        <select
-                            value={form.productId}
-                            onChange={e => handleProductChange(e.target.value)}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white"
-                        >
-                            <option value="">Selecione um produto...</option>
-                            {produtos.map(p => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name} — R$ {Number(p.price).toFixed(2).replace('.', ',')}
-                                </option>
-                            ))}
-                        </select>
-                    </div>*/}
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-slate-700 mb-1">Anexos</label>
                         <FileUpload files={files} onChange={setFiles}/>
