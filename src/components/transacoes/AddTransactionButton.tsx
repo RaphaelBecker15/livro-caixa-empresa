@@ -75,12 +75,14 @@ export function AddTransactionButton({ userId }: AddTransactionButtonProps) {
             adicionarTransacao(transacao)
             toast.success('Transação criada com sucesso!')
             setOpenModal(false)
+            setFiles([])
             setForm({ date: dataHoje, description: '', amount: '', type: 'entrada' })
         } catch {
             if (attachmentPaths.length > 0) {
                 await supabase.storage.from('attachments').remove(attachmentPaths)
             }
             toast.error('Erro ao criar transação. Tente novamente.')
+            setFiles([])
         } finally {
             setLoading(false)
         }

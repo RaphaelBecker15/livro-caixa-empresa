@@ -34,7 +34,6 @@ export function LayoutClientWrapper({ children, user }: LayoutClientWrapperProps
                             >
                                 <Menu size={24} />
                             </button>
-                            <span className="text-white font-semibold text-sm">Grupo Rezende</span>
                         </div>
 
                         <div className="p-4 md:p-5">
